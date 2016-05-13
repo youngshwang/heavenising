@@ -528,18 +528,18 @@ public class ExploratoryRobot {
 		org.bson.Document[] bson = new org.bson.Document[10];
 		for (int i = 0; i < max; i++) {
 			org.bson.Document news = new org.bson.Document();
-			
+
 			String title = links.get(i).html();
 			String desc = contents.get(i).html();
-			
+
 			String[] rep = new String[] {
-				"<strong class=\"hl\">","</strong>"	
+				"<strong class=\"hl\">","</strong>"
 			};
 			for (int j=0; j<rep.length; j++) {
 				title = title.replaceAll(rep[j], "");
 				desc = desc.replaceAll(rep[j], "");
-			}			
-			
+			}
+
 			news.append("company", companys.get(i).text().trim());
 			news.append("title", title);
 			news.append("desc", desc);
@@ -658,7 +658,7 @@ public class ExploratoryRobot {
 	public int getPid() {
 		int rtnval = 0;
 		MongoClient client2 = new MongoClient(new MongoClientURI(
-				"mongodb://heaven:ahgksl12@localhost:27017/posting"));
+				"mongodb://localhost:27017/posting"));
 		try {
 			MongoDatabase db = client2.getDatabase("posting");
 			org.bson.Document doc = db.getCollection("postinfo").find()
@@ -675,7 +675,7 @@ public class ExploratoryRobot {
 	public boolean insertOne(org.bson.Document doc) {
 		boolean rtnval = false;
 		MongoClient client2 = new MongoClient(new MongoClientURI(
-				"mongodb://heaven:ahgksl12@localhost:27017/posting"));
+				"mongodb://localhost:27017/posting"));
 		try {
 			MongoDatabase db = client2.getDatabase("posting");
 			db.getCollection("postinfo").insertOne(doc);
