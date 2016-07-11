@@ -24,6 +24,10 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.protocol.HttpContext;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -584,13 +588,40 @@ public class ExploratoryRobot {
 			e.printStackTrace();
 		}
 
-		String[] images = getItems(pagecontents, GOOGLE_IMG_LB, GOOGLE_IMG_RB);
-		String[] imageswidth = getItems(pagecontents, GOOGLE_IMG_W_LB,
-				GOOGLE_IMG_W_RB);
-		String[] imagesheight = getItems(pagecontents, GOOGLE_IMG_H_LB,
-				GOOGLE_IMG_H_RB);
-		String[] imagestitle = getItems(pagecontents, GOOGLE_IMG_TITLE_LB,
-				GOOGLE_IMG_TITLE_RB);
+        JSONParser jp = new JSONParser();
+        Document jdoc = Jsoup.parse(pagecontents);
+        Elements rg_metas = jdoc.select(".rg_meta");
+        int size = rg_metas.size();
+        String[] images = new String[size];
+        String[] imageswidth = new String[size];
+        String[] imagesheight = new String[size];
+        String[] imagestitle = new String[size];
+
+        for(int i=0; i<size; i++) {
+            try {
+                String one = rg_metas.get(i).toString();
+                one = one.replaceAll("<div class=\"rg_meta\">", "")
+                        .replaceAll("</div>","").replaceAll("&quot;", "\"").trim();
+                JSONObject jo = (JSONObject) jp.parse(one);
+                images[i] = jo.get("ou").toString();
+                imageswidth[i] = jo.get("ow").toString();
+                imagesheight[i] = jo.get("oh").toString();
+                imagestitle[i] = jo.get("pt").toString();
+
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+
+//		String[] images = getItems(pagecontents, GOOGLE_IMG_LB, GOOGLE_IMG_RB);
+//		String[] imageswidth = getItems(pagecontents, GOOGLE_IMG_W_LB,
+//				GOOGLE_IMG_W_RB);
+//		String[] imagesheight = getItems(pagecontents, GOOGLE_IMG_H_LB,
+//				GOOGLE_IMG_H_RB);
+//		String[] imagestitle = getItems(pagecontents, GOOGLE_IMG_TITLE_LB,
+//				GOOGLE_IMG_TITLE_RB);
 
 		// sorting
 		int lenD = imagesheight.length;
@@ -663,6 +694,9 @@ public class ExploratoryRobot {
 			MongoDatabase db = client2.getDatabase("posting");
 			org.bson.Document doc = db.getCollection("postinfo").find()
 					.sort(new org.bson.Document("pid", -1)).limit(1).first();
+			if (doc == null) {
+                return 10001;
+            }
 			System.out.println("max pid: " + doc.getInteger("pid"));
 			rtnval = doc.getInteger("pid");
 		} catch (Exception e) {
