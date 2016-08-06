@@ -27,8 +27,8 @@ public class PostBlogTestNew {
         ExploratoryRobot er = new ExploratoryRobot();
         int pid = er.getPid() + 1;
 
-        String keyword = "치어리더 박기량";
-        String exkeyword = "박기량";
+        String keyword = "쯔위 화보";
+        String exkeyword = "쯔위";
         String title = "" + keyword + "" + " 사진모음";
         String keyword2 = keyword;
 

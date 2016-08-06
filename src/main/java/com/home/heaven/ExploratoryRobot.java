@@ -37,6 +37,7 @@ import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoDatabase;
 
 public class ExploratoryRobot {
+	String mongouri = "";
 	HttpHost proxy = new HttpHost("127.0.0.1", 8888, "http");
 	String useragent = "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36";
 
@@ -689,7 +690,7 @@ public class ExploratoryRobot {
 	public int getPid() {
 		int rtnval = 0;
 		MongoClient client2 = new MongoClient(new MongoClientURI(
-				"mongodb://localhost:27017/posting"));
+				mongouri));
 		try {
 			MongoDatabase db = client2.getDatabase("posting");
 			org.bson.Document doc = db.getCollection("postinfo").find()
@@ -709,7 +710,7 @@ public class ExploratoryRobot {
 	public boolean insertOne(org.bson.Document doc) {
 		boolean rtnval = false;
 		MongoClient client2 = new MongoClient(new MongoClientURI(
-				"mongodb://localhost:27017/posting"));
+				mongouri));
 		try {
 			MongoDatabase db = client2.getDatabase("posting");
 			db.getCollection("postinfo").insertOne(doc);
