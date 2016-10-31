@@ -13,19 +13,7 @@ import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 
 public class PostBlog {
 
-	private String EGLOOS_URL = "https://rpc.egloos.com/rpc1";
-	private String EGLOOS_KEY = "515ec17ade2fc";
-	private String EGLOOS_ID = "heavenisin";
 
-	private String TSTORY_URL = "http://heavenising.tistory.com/api";
-	private String TSTORY_KEY = "QB2E6HNH";
-	private String TSTORY_API_ID = "1504422";
-	private String TSTORY_ID = "realstone97@naver.com";
-	
-	private String NAVER_URL = "https://api.blog.naver.com/xmlrpc";
-	private String NAVER_KEY = "a2d12e6ddb76f335e1501fedcd9db48a";
-	private String NAVER_API_ID = "heavenising";
-	private String NAVER_ID = "heavenising";
 
 	public String sendBlogDataToTstory(String title, String description,
 			String tag) {

@@ -37,7 +37,7 @@ import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoDatabase;
 
 public class ExploratoryRobot {
-	String mongouri = "";
+	String mongouri = "mongodb://allthatall.kr:10002/posting";
 	HttpHost proxy = new HttpHost("127.0.0.1", 8888, "http");
 	String useragent = "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36";
 
@@ -685,6 +685,113 @@ public class ExploratoryRobot {
 			doc.add(imgs);
 		}
 		return doc.toArray(new org.bson.Document[doc.size()]);
+	}
+
+	public String generateImgContentsHtml(String keyword, int max, String startmsg,
+												   String exKeyword) {
+
+		String conti = "<P><div><span>" + startmsg + "</span></div><br>";
+		loadingFile();
+		String pagecontents = "";
+		try {
+			pagecontents = requestGET2(GOOGLE_URL_IMAGE
+					+ URLEncoder.encode(keyword, "UTF-8"));
+		} catch (ClientProtocolException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		JSONParser jp = new JSONParser();
+		Document jdoc = Jsoup.parse(pagecontents);
+		Elements rg_metas = jdoc.select(".rg_meta");
+		int size = rg_metas.size();
+		String[] images = new String[size];
+		String[] imageswidth = new String[size];
+		String[] imagesheight = new String[size];
+		String[] imagestitle = new String[size];
+
+		for(int i=0; i<size; i++) {
+			try {
+				String one = rg_metas.get(i).toString();
+				one = one.replaceAll("<div class=\"rg_meta\">", "")
+						.replaceAll("</div>","").replaceAll("&quot;", "\"").trim();
+				JSONObject jo = (JSONObject) jp.parse(one);
+				images[i] = jo.get("ou").toString();
+				imageswidth[i] = jo.get("ow").toString();
+				imagesheight[i] = jo.get("oh").toString();
+				imagestitle[i] = jo.get("pt").toString();
+
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+
+		// sorting
+		int lenD = imagesheight.length;
+		int j = 0;
+		String tmp;
+		for (int i = 0; i < lenD; i++) {
+			j = i;
+			for (int k = i; k < lenD; k++) {
+				if (Integer.parseInt(imagesheight[j]) < Integer
+						.parseInt(imagesheight[k])) {
+					j = k;
+				}
+			}
+			tmp = imagesheight[i];
+			imagesheight[i] = imagesheight[j];
+			imagesheight[j] = tmp;
+
+			tmp = imageswidth[i];
+			imageswidth[i] = imageswidth[j];
+			imageswidth[j] = tmp;
+
+			tmp = images[i];
+			images[i] = images[j];
+			images[j] = tmp;
+
+			tmp = imagestitle[i];
+			imagestitle[i] = imagestitle[j];
+			imagestitle[j] = tmp;
+		}
+
+		ArrayList<org.bson.Document> doc = new ArrayList<org.bson.Document>();
+		for (int i = 0; i < max; i++) {
+			if (images[i] == null || imagestitle[i] == null)
+				continue;
+
+			int height = Integer.parseInt(imagesheight[i]);
+			if (height < 500)
+				break;
+
+			int width = Integer.parseInt(imageswidth[i]);
+			if (width > 600)
+				width = 600;
+			if (isContainedSite(images[i]))
+				continue;
+
+			if ((exKeyword != null)
+					&& (imagestitle[i].indexOf(exKeyword) == -1))
+				continue;
+
+			if (imagestitle[i].indexOf("Heavenising") != -1)
+				continue;
+
+			String statement = "<br><br><div><span><a href=\"" + images[i]
+					+ "\" target=\"_blank\" style=\"color:blue\">"
+					+ imagestitle[i] + "<br>" + "출처: " + images[i]
+					+ "<br>[원본]width:" + imageswidth[i] + ",height:"
+					+ imagesheight[i] + "<br><img src=\"" + images[i]
+					+ "\" width=\"" + width + "\" ></a></span></div>";
+//			System.out.println(statement);
+			conti += statement;
+		}
+
+
+		return conti;
 	}
 
 	public int getPid() {
